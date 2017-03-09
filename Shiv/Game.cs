@@ -69,6 +69,19 @@ namespace Shiv
             Systems.MapGenerator mapGenerator = new Systems.MapGenerator(mapWidth, mapHeight);
             DungeonMap = mapGenerator.CreateMap();
 
+            //Sets background color for each subdivision of the console window
+            //Prints string to verify that each subdivision is where it belongs
+            mapConsole.SetBackColor(0, 0, mapWidth, mapHeight, Core.Colors.FloorBackground);
+
+            messageConsole.SetBackColor(0, 0, messageWidth, messageHeight, RLColor.Black);
+            messageConsole.Print(1, 1, "Messages", Core.Colors.TextHeading);
+
+            statsConsole.SetBackColor(0, 0, statsWidth, statsHeight, RLColor.Black);
+            statsConsole.Print(1, 1, "Stats", Core.Colors.TextHeading);
+
+            inventoryConsole.SetBackColor(0, 0, inventoryWidth, inventoryHeight, RLColor.Black);
+            inventoryConsole.Print(1, 1, "Inventory", Core.Colors.TextHeading);
+
             //Instantiates a handler for RLNet's update event
             rootConsole.Update += OnRootConsoleUpdate;
             //Instantiates a handler for RLNet's render event
@@ -81,18 +94,7 @@ namespace Shiv
         //Event handler for RLNet update event
         private static void OnRootConsoleUpdate(object Sender, UpdateEventArgs e)
         {
-            //Sets background color for each subdivision of the console window
-            //Prints string to verify that each subdivision is where it belongs
-            mapConsole.SetBackColor(0, 0, mapWidth, mapHeight, RLColor.Black);
 
-            messageConsole.SetBackColor(0, 0, messageWidth, messageHeight, RLColor.Black);
-            messageConsole.Print(1, 1, "Messages", RLColor.White);
-
-            statsConsole.SetBackColor(0, 0, statsWidth, statsHeight, RLColor.Black);
-            statsConsole.Print(1, 1, "Stats", RLColor.White);
-
-            inventoryConsole.SetBackColor(0, 0, inventoryWidth, inventoryHeight, RLColor.Black);
-            inventoryConsole.Print(1, 1, "Inventory", RLColor.White);
         }
         //Event handler for RLNet render event
         private static void OnRootConsoleRender(object Sender, UpdateEventArgs e)

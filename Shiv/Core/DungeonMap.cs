@@ -34,29 +34,28 @@ namespace Shiv.Core
             //If the cell/tile is in the field of view,
             //      draw it to the screen using lighter
             //      colors than an explored, non-FOV tile
-            if(IsInFov(cell.X, cell.Y))
+            if (IsInFov(cell.X, cell.Y))
             {
-                if(cell.IsWalkable)
+                if (cell.IsWalkable)
                 {
-                    console.Set(cell.X, cell.Y, RLColor.LightGray, RLColor.Gray, '.');
+                    console.Set(cell.X, cell.Y, Colors.FloorFov, Colors.FloorBackgroundFov, '.');
                 }
                 else
                 {
-                    console.Set(cell.X, cell.Y, RLColor.LightGreen, RLColor.Green, '#');
+                    console.Set(cell.X, cell.Y, Colors.WallFov, Colors.WallBackgroundFov, '#');
                 }
             }
             else
             {
-                if(cell.IsWalkable)
+                if (cell.IsWalkable)
                 {
-                    console.Set(cell.X, cell.Y, RLColor.White, RLColor.Black, '.');
+                    console.Set(cell.X, cell.Y, Colors.Floor, Colors.FloorBackground, '.');
                 }
                 else
                 {
-                    console.Set(cell.X, cell.Y, RLColor.White, RLColor.Black, '#');
+                    console.Set(cell.X, cell.Y, Colors.Wall, Colors.WallBackground, '#');
                 }
             }
-
         }
     }
 }
