@@ -1,8 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿/* Name: Steven Alford
+ * File: Game.cs
+ * Date: 3/3/17
+ * Desc: Contains the window setup/subdivisions and the main game loop.
+ *       Also handles updating the game loop and rendering objects to
+ *       the screen.
+ */
+
 using RLNET;
 using RogueSharp;
 
@@ -11,6 +14,9 @@ namespace Shiv
 {
     public class Game
     {
+        //Declares a Player object
+        public static Core.Player Player { get; private set; }
+        //Declares a DungeonMap object
         public static Core.DungeonMap DungeonMap { get; private set; }
 
         /// <summary>
@@ -32,21 +38,22 @@ namespace Shiv
         private static readonly int mapHeight = 68;
         private static RLConsole mapConsole;
 
-        //(3) Sets the message size in tiles (8x8 pixels)
+        //(3) Sets the message window size in tiles (8x8 pixels)
         private static readonly int messageWidth = 120;
         private static readonly int messageHeight = 16;
         private static RLConsole messageConsole;
 
-        //(4) Sets the stats size in tiles (8x8 pixels)
+        //(4) Sets the stats window size in tiles (8x8 pixels)
         private static readonly int statsWidth = 30;
         private static readonly int statsHeight = 100;
         private static RLConsole statsConsole;
 
-        //(5) Sets the inventory size in tiles (8x8 pixels)
+        //(5) Sets the inventory window size in tiles (8x8 pixels)
         private static readonly int inventoryWidth = 120;
         private static readonly int inventoryHeight = 16;
         private static RLConsole inventoryConsole;
 
+        //Main Game loop
         public static void Main()
         {
             //File name for the custom font (RLNet library requires custom 8x8 font)
@@ -54,6 +61,15 @@ namespace Shiv
             //Title included at the top of the console window
             //      UPDATE LATER TO SHOW SEED# & CURRENT DUNGEON LEVEL
             string windowTitle = "Shiv - Level 1";
+            //Creates a new player object for the game
+            Player = new Core.Player();
+
+            //Welcome Screen
+            //Console.WriteLine("Welcome to Shiv! Please enter your name: ");
+            //Player.Name = Console.ReadLine();
+
+            //Creates the window title with the player's name
+            windowTitle += " - " + Player.Name;
 
             //Creates new console window using below parameters
             //(font file name, screen width, screen height, width per tile,
@@ -61,16 +77,20 @@ namespace Shiv
             rootConsole = new RLRootConsole(fontFile, screenWidth, screenHeight, 8, 8, 1f, windowTitle);
 
             //Instantiates console subdivisions
-            mapConsole = new RLConsole(mapWidth, mapHeight);
-            messageConsole = new RLConsole(messageWidth, messageHeight);
-            statsConsole = new RLConsole(statsWidth, statsHeight);
+            mapConsole       = new RLConsole(mapWidth, mapHeight);
+            messageConsole   = new RLConsole(messageWidth, messageHeight);
+            statsConsole     = new RLConsole(statsWidth, statsHeight);
             inventoryConsole = new RLConsole(inventoryWidth, inventoryHeight);
 
+            //Creates a new map generator
             Systems.MapGenerator mapGenerator = new Systems.MapGenerator(mapWidth, mapHeight);
+            //Creates a new map using the map generator instantiated above
             DungeonMap = mapGenerator.CreateMap();
+            //Updates the Player's field of view on the map
+            DungeonMap.UpdatePlayerFOV();
 
             //Sets background color for each subdivision of the console window
-            //Prints string to verify that each subdivision is where it belongs
+            //Prints string to label each subdivision
             mapConsole.SetBackColor(0, 0, mapWidth, mapHeight, Core.Colors.FloorBackground);
 
             messageConsole.SetBackColor(0, 0, messageWidth, messageHeight, RLColor.Black);
@@ -113,7 +133,10 @@ namespace Shiv
             //Tells RLNet to draw the console that we specified in rootConsole
             rootConsole.Draw();
 
+            //Draw the map subdivision to the screen
             DungeonMap.Draw(mapConsole);
+            //Draw the player to the dungeon map
+            Player.Draw(mapConsole, DungeonMap);
         }
     }
 }
