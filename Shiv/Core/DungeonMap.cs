@@ -3,9 +3,11 @@
  * Date: 3/5/17
  * Desc: A map class that stores the cells and sets their properties based
  *       on the map generator. Also handles field of view for the player and
- *       updates the colors for the cells based on the position of the player
+ *       updates the colors for the cells based on the position of the player.
+ *       Also determines actor position based on cell properties.
  */
 
+using System.Collections.Generic;
 using RLNET;
 using RogueSharp;
 
@@ -15,6 +17,53 @@ namespace Shiv.Core
     //      and expands its functionality
     public class DungeonMap : Map
     {
+        //Creates a linked list of rectangles that will be used
+        //      to store room properties
+        public List<Rectangle> Rooms;
+
+        //A dungeonMap method that creates a dynamic list
+        //      of rooms to be used when creating the map
+        public DungeonMap()
+        {
+            Rooms = new List<Rectangle>();
+        }
+
+        public bool SetActorPosition(Actor actor, int x, int y)
+        {
+            //If the cell is walkable allow the actor to move to
+            //      its position
+            if(GetCell(x,y).IsWalkable)
+            {
+                //The cell that the actor is on currently is not
+                //      walkable, and therefore needs to be changed
+                //      once the actor moves to allow for movement
+                //      to that cell later
+                SetIsWalkable(actor.X, actor.Y, true);
+                //Update the actor's position
+                actor.X = x;
+                actor.Y = y;
+                //Sets the new cell that the actor is standing on
+                //  to not walkable, since two actors cannot stand
+                //  in the same cell
+                SetIsWalkable(actor.X, actor.Y, false);
+                //If the actor is the player, update FOV
+                if (actor is Player)
+                {
+                    UpdatePlayerFOV();
+                }
+                return true;
+            }
+            //If the player cannot be moved to the new cell/tile
+            return false;
+        }
+
+        //Sets the cell to be walkable or not
+        public void SetIsWalkable(int x, int y, bool isWalkable)
+        {
+            Cell cell = GetCell(x, y);
+            SetCellProperties(cell.X, cell.Y, cell.IsTransparent, isWalkable, cell.IsExplored);
+        }
+
         //Draws the map to the screen
         public void Draw(RLConsole mapConsole)
         {
@@ -44,7 +93,7 @@ namespace Shiv.Core
                 //Floor
                 if (cell.IsWalkable)
                 {
-                    console.Set(cell.X, cell.Y, Colors.FloorFov, Colors.FloorBackgroundFov, '.');
+                    console.Set(cell.X, cell.Y, Colors.FloorFov, Colors.FloorBackgroundFov, (char) 177);
                 }
                 //Wall
                 else
@@ -60,7 +109,7 @@ namespace Shiv.Core
                 //Floor
                 if (cell.IsWalkable)
                 {
-                    console.Set(cell.X, cell.Y, Colors.Floor, Colors.FloorBackground, '.');
+                    console.Set(cell.X, cell.Y, Colors.Floor, Colors.FloorBackground, (char) 177);
                 }
                 //Wall
                 else
@@ -68,6 +117,16 @@ namespace Shiv.Core
                     console.Set(cell.X, cell.Y, Colors.Wall, Colors.WallBackground, '#');
                 }
             }
+        }
+
+        //Add the player to the DungeonMap and set the cell that the player
+        //      spawns on to not walkable, then update the player's starting
+        //      field of view
+        public void AddPlayer(Player player)
+        {
+            Game.Player = player;
+            SetIsWalkable(player.X, player.Y, false);
+            UpdatePlayerFOV();
         }
 
         //Updates the player's field of view in relation to the map

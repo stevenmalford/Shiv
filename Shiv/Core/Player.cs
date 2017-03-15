@@ -16,11 +16,11 @@ namespace Shiv.Core
             //The name of the player
             Name = "Rogue";
             //The symbol that represents the player on the screen
-            Symbol = '@';
+            Symbol = (char) 127;
             //The color of the player's symbol
             Color = Colors.Player;
             //The players field of view/awareness
-            Fov = 15;
+            Fov = 10;
             //The x coordinate of the player
             X = 10;
             //The y coordinate of the player
