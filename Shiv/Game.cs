@@ -52,27 +52,27 @@ namespace Shiv
 
         //(2) Sets the map size in tiles (8x8 pixels)
         private static readonly int mapWidth = 120;
-        private static readonly int mapHeight = 68;
+        private static readonly int mapHeight = 70;
         private static RLConsole mapConsole;
 
         //(3) Sets the message window size in tiles (8x8 pixels)
-        private static readonly int messageWidth = 120;
-        private static readonly int messageHeight = 16;
+        private static readonly int messageWidth = 90;
+        private static readonly int messageHeight = 30;
         private static RLConsole messageConsole;
 
         //(4) Sets the stats window size in tiles (8x8 pixels)
         private static readonly int statsWidth = 30;
-        private static readonly int statsHeight = 68;
+        private static readonly int statsHeight = 70;
         private static RLConsole statsConsole;
 
         //(5) Sets the inventory window size in tiles (8x8 pixels)
-        private static readonly int inventoryWidth = 120;
-        private static readonly int inventoryHeight = 16;
+        private static readonly int inventoryWidth = 30;
+        private static readonly int inventoryHeight = 30;
         private static RLConsole inventoryConsole;
 
         //(6) Sets the armour window size in tiles (8x8 pixels)
         private static readonly int armourWidth = 30;
-        private static readonly int armourHeight = 32;
+        private static readonly int armourHeight = 30;
         private static RLConsole armourConsole;
 
         //Declares a random object to store a random variable
@@ -236,13 +236,13 @@ namespace Shiv
                 //Blits the subdivisions to the window
                 //(https://en.wikipedia.org/wiki/Bit_blit)
                 //Map
-                RLConsole.Blit(mapConsole, 0, 0, mapWidth, mapHeight, rootConsole, 0, inventoryHeight);
+                RLConsole.Blit(mapConsole, 0, 0, mapWidth, mapHeight, rootConsole, 0, 0);
                 //Messages
                 RLConsole.Blit(messageConsole, 0, 0, messageWidth, messageHeight, rootConsole, 0, (screenHeight - messageHeight));
                 //Stats
                 RLConsole.Blit(statsConsole, 0, 0, statsWidth, statsHeight, rootConsole, mapWidth, 0);
                 //Inventory
-                RLConsole.Blit(inventoryConsole, 0, 0, inventoryWidth, inventoryHeight, rootConsole, 0, 0);
+                RLConsole.Blit(inventoryConsole, 0, 0, inventoryWidth, inventoryHeight, rootConsole, messageWidth, mapHeight);
                 //Armour
                 RLConsole.Blit(armourConsole, 0, 0, armourWidth, armourHeight, rootConsole, mapWidth, screenHeight - armourHeight);
 
