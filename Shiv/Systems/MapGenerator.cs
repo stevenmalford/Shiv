@@ -28,8 +28,10 @@ namespace Shiv.Systems
         private readonly DungeonMap map;
 
         //Map Generator function taking height and width variables,
-        //      and also the room specifications
-        public MapGenerator(int width, int height, int maxRooms, int roomMaxSize, int roomMinSize)
+        //      and also the room specifications (also includes 
+        //      which dungeon level the player is on to determine
+        //      how strong the enemies will be)
+        public MapGenerator(int width, int height, int maxRooms, int roomMaxSize, int roomMinSize, int mapLevel)
         {
             _width = width;
             _height = height;
@@ -105,6 +107,11 @@ namespace Shiv.Systems
                 CreateRoom(room);
             }
 
+            //Create the stairs up and down
+            CreateStairs();
+            //Create the item in the item room
+            CreateItem();
+
             //Place the player on the map
             PlacePlayer();
 
@@ -169,11 +176,63 @@ namespace Shiv.Systems
             //      previous room and current room, create
             //      a vertical path from the first room
             //      to the y position of the second room
-            for(int y = Math.Min(yStart, yEnd); y <= Math.Max(yStart, yEnd); y++)
+            for (int y = Math.Min(yStart, yEnd); y <= Math.Max(yStart, yEnd); y++)
             {
                 //Set each cell along the way to be walkable
                 map.SetCellProperties(xPos, y, true, true);
             }
+        }
+
+        //Method to create stairs up (shows the player where
+        //      they started) and down (shows the player where
+        //      the exit is and lets the player descend)
+        private void CreateStairs()
+        {
+            //Create a new stairs instance that "goes up"
+            map.StairsUp = new Stairs
+            {
+                //Create the stairs to the right of the player's
+                //      starting position in the first room
+                X = map.Rooms.First().Center.X + 1,
+                Y = map.Rooms.First().Center.Y,
+                IsUp = true
+            };
+            //Create a new stairs instance that goes down
+            map.StairsDown = new Stairs
+            {
+                //Create the stairs in the last room that
+                //      was generated
+                X = map.Rooms.Last().Center.X,
+                Y = map.Rooms.Last().Center.Y,
+                IsUp = false
+            };
+        }
+
+        //Method to create an item that will benefit the player in
+        //      some way, generally increasing their stats
+        private void CreateItem()
+        {
+            //Set the room that holds the item to be the
+            //      room that is half the total number of
+            //      rooms on the map (middle generated)
+            int itemRoom = map.Rooms.Count / 2;
+
+            //Create a new chest that is opened
+            map.ChestOpen = new Item
+            {
+                //Place the chest inside the item room
+                X = map.Rooms[itemRoom].Center.X,
+                Y = map.Rooms[itemRoom].Center.Y,
+                IsOpened = true
+            };
+            //Create a new chest that is closed
+            map.ChestClosed = new Item
+            {
+                //Place the chest inside the item room
+                X = map.Rooms[itemRoom].Center.X,
+                Y = map.Rooms[itemRoom].Center.Y,
+                IsOpened = false
+            };
         }
     }
 }

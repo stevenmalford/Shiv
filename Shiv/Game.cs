@@ -17,10 +17,15 @@ namespace Shiv
 {
     public class Game
     {
+        //Sets the initial dungeon level and creates a seed variable
+        private static int mapLevel = 1;
+        private static int mapSeed;
+
         //Creates a boolean argument to tell the render event to run
         //      if something on the screen has updated, else keep the
         //      same screen
         private static bool renderRequired = true;
+        
         //Instantiates a Commands variable that will move the player
         //      from their previous coordinates to the new coords
         public static Commands Commands { get; set; }
@@ -37,6 +42,7 @@ namespace Shiv
         ///     - (3) Message subdivision size
         ///     - (4) Stats subdivison size
         ///     - (5) Inventory subdivision size
+        ///     - (6) Armour subdivision size
         /// </summary>
 
         //(1) Sets the console size in tiles (8x8 pixels)
@@ -56,13 +62,18 @@ namespace Shiv
 
         //(4) Sets the stats window size in tiles (8x8 pixels)
         private static readonly int statsWidth = 30;
-        private static readonly int statsHeight = 100;
+        private static readonly int statsHeight = 68;
         private static RLConsole statsConsole;
 
         //(5) Sets the inventory window size in tiles (8x8 pixels)
         private static readonly int inventoryWidth = 120;
         private static readonly int inventoryHeight = 16;
         private static RLConsole inventoryConsole;
+
+        //(6) Sets the armour window size in tiles (8x8 pixels)
+        private static readonly int armourWidth = 30;
+        private static readonly int armourHeight = 32;
+        private static RLConsole armourConsole;
 
         //Declares a random object to store a random variable
         public static IRandom Random { get; private set; }
@@ -72,6 +83,7 @@ namespace Shiv
         {
             //Generates a semi-random number from the current timestamp
             int seed = (int)DateTime.UtcNow.Ticks;
+            mapSeed = seed;
             //Sets the random number to be equal to the current seed
             Random = new DotNetRandom(seed);
 
@@ -79,7 +91,7 @@ namespace Shiv
             string fontFile = "terminal8x8.png";
             //Title included at the top of the console window
             //      UPDATE LATER TO SHOW CURRENT DUNGEON LEVEL
-            string windowTitle = "Shiv - Level 1 - Seed: " + seed;
+            string windowTitle = "Shiv - Level 1 - Seed: " + seed + " Level: " + mapLevel;
 
             //Creates a new commands to control the player
             Commands = new Commands();
@@ -98,9 +110,10 @@ namespace Shiv
             messageConsole   = new RLConsole(messageWidth, messageHeight);
             statsConsole     = new RLConsole(statsWidth, statsHeight);
             inventoryConsole = new RLConsole(inventoryWidth, inventoryHeight);
+            armourConsole    = new RLConsole(armourWidth, armourHeight);
 
             //Creates a new map generator
-            MapGenerator mapGenerator = new MapGenerator(mapWidth, mapHeight, 40, 14, 7);
+            MapGenerator mapGenerator = new MapGenerator(mapWidth, mapHeight, 40, 14, 7, mapLevel);
             //Creates a new map using the map generator instantiated above
             DungeonMap = mapGenerator.CreateMap();
             //Updates the Player's field of view on the map
@@ -118,6 +131,9 @@ namespace Shiv
 
             inventoryConsole.SetBackColor(0, 0, inventoryWidth, inventoryHeight, Palette.PrimaryLightest);
             inventoryConsole.Print(1, 1, "Inventory", Colors.TextHeading);
+
+            armourConsole.SetBackColor(0, 0, armourWidth, armourHeight, Palette.Alternate);
+            armourConsole.Print(1, 1, "Armour", Colors.TextHeading);
 
             //Instantiates a handler for RLNet's update event
             rootConsole.Update += OnRootConsoleUpdate;
@@ -142,29 +158,55 @@ namespace Shiv
             //If there is a keypress
             if(keyPress != null)
             {
-                //If the player presses up
-                if(keyPress.Key == RLKey.Up)
+                //If the player presses up or W
+                if(keyPress.Key == RLKey.Up || keyPress.Key == RLKey.W)
                 {
                     //Move the player up and update didPlayerMove
-                    didPlayerMove = Commands.MovePlayer(Core.Direction.Up);
+                    didPlayerMove = Commands.MovePlayer(Direction.Up);
                 }
-                //If the player presses down
-                else if (keyPress.Key == RLKey.Down)
+                //If the player presses down or S
+                else if (keyPress.Key == RLKey.Down || keyPress.Key == RLKey.S)
                 {
                     //Move the player down and update didPlayerMove
-                    didPlayerMove = Commands.MovePlayer(Core.Direction.Down);
+                    didPlayerMove = Commands.MovePlayer(Direction.Down);
                 }
-                //If the player presses left
-                else if (keyPress.Key == RLKey.Left)
+                //If the player presses left or A
+                else if (keyPress.Key == RLKey.Left || keyPress.Key == RLKey.A)
                 {
                     //Move the player left and update didPlayerMove
-                    didPlayerMove = Commands.MovePlayer(Core.Direction.Left);
+                    didPlayerMove = Commands.MovePlayer(Direction.Left);
                 }
-                //If the player presses right
-                else if (keyPress.Key == RLKey.Right)
+                //If the player presses right or D
+                else if (keyPress.Key == RLKey.Right || keyPress.Key == RLKey.D)
                 {
                     //Move the player right and update didPlayerMove
-                    didPlayerMove = Commands.MovePlayer(Core.Direction.Right);
+                    didPlayerMove = Commands.MovePlayer(Direction.Right);
+                }
+                //If the player presses E
+                else if (keyPress.Key == RLKey.E)
+                {
+                    //Checks to see if the player is standing on the stairs
+                    //      to go down to the next level
+                    if(DungeonMap.CanPlayerGoDown())
+                    {
+                        //Create a new map for the second floor of the dungeon
+                        MapGenerator mapGenerator = new MapGenerator(mapWidth, mapHeight, 40, 14, 7, ++mapLevel);
+                        DungeonMap = mapGenerator.CreateMap();
+                        //Updates the console title to reflect the dungeon level
+                        rootConsole.Title = $"Shiv - Level 1 - Seed: {mapSeed} - Level: {mapLevel}";
+                        //Renders the screen
+                        didPlayerMove = true;
+                    }
+
+                    //checks to see if the player is within 1 tile of the item
+                    if(DungeonMap.CanPlayerOpenChest())
+                    {
+                        //If the player opens the chest, set the icon to be the
+                        //      open chest and have open chest properties
+                        DungeonMap.ChestClosed = DungeonMap.ChestOpen;
+                        //Renders the screen
+                        didPlayerMove = true;
+                    }
                 }
                 //If the player presses escape
                 else if (keyPress.Key == RLKey.Escape)
@@ -201,6 +243,8 @@ namespace Shiv
                 RLConsole.Blit(statsConsole, 0, 0, statsWidth, statsHeight, rootConsole, mapWidth, 0);
                 //Inventory
                 RLConsole.Blit(inventoryConsole, 0, 0, inventoryWidth, inventoryHeight, rootConsole, 0, 0);
+                //Armour
+                RLConsole.Blit(armourConsole, 0, 0, armourWidth, armourHeight, rootConsole, mapWidth, screenHeight - armourHeight);
 
                 //Tells RLNet to draw the console that we specified in rootConsole
                 rootConsole.Draw();

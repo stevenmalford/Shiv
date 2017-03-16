@@ -28,5 +28,15 @@ namespace Shiv.Core
 
         //Player object
         public static RLColor Player = RLColor.White;
+
+        //Item chest object
+        public static RLColor Chest = Palette.LightSteel;
+
+        //Item text colors
+        public static RLColor PlayerPuny;// = Palette.;
+        public static RLColor PlayerWeak;// = Palette.;
+        public static RLColor PlayerOrdinary;// = Palette.;
+        public static RLColor PlayerHeroic = Palette.Clairvoyant;
+        public static RLColor PlayerLegendary = Palette.TahitiGold;
     }
 }

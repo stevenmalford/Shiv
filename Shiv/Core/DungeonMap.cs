@@ -17,6 +17,14 @@ namespace Shiv.Core
     //      and expands its functionality
     public class DungeonMap : Map
     {
+        //Creates an item for both a closed and open chest
+        public Item ChestOpen { get; set; }
+        public Item ChestClosed { get; set; }
+
+        //Creates the stairs up and down
+        public Stairs StairsUp { get; set; }
+        public Stairs StairsDown { get; set; }
+
         //Creates a linked list of rectangles that will be used
         //      to store room properties
         public List<Rectangle> Rooms;
@@ -28,6 +36,7 @@ namespace Shiv.Core
             Rooms = new List<Rectangle>();
         }
 
+        //Places the actor on the map
         public bool SetActorPosition(Actor actor, int x, int y)
         {
             //If the cell is walkable allow the actor to move to
@@ -75,6 +84,18 @@ namespace Shiv.Core
             {
                 SetSymbolForCell(mapConsole, cell);
             }
+
+            //Draws the stairs up
+            StairsUp.Draw(mapConsole, this);
+            //Draws the stairs down and instantiates the interactive
+            //      object
+            StairsDown.Draw(mapConsole, this);
+
+            //Draws the open chest
+            ChestOpen.Draw(mapConsole, this);
+            //Draws the closed chest and instantiates the interactive
+            //      object
+            ChestClosed.Draw(mapConsole, this);
         }
 
         //Sets the symbol based on what the cell's properties are
@@ -145,6 +166,28 @@ namespace Shiv.Core
                     SetCellProperties(cell.X, cell.Y, cell.IsTransparent, cell.IsWalkable, true);
                 }
             }
+        }
+
+        //Checks to see if the player is standing on the stairs going down
+        public bool CanPlayerGoDown()
+        {
+            Player player = Game.Player;
+            return StairsDown.X == player.X && StairsDown.Y == player.Y;
+        }
+
+        //Checks to see if the player is within 1 tile of the item
+        public bool CanPlayerOpenChest()
+        {
+            Player player = Game.Player;
+            return ChestClosed.X == player.X && ChestClosed.Y == player.Y ||
+                   ChestClosed.X == player.X + 1 && ChestClosed.Y == player.Y ||
+                   ChestClosed.X == player.X + 1 && ChestClosed.Y == player.Y + 1 ||
+                   ChestClosed.X == player.X && ChestClosed.Y == player.Y + 1 ||
+                   ChestClosed.X == player.X - 1 && ChestClosed.Y == player.Y + 1 ||
+                   ChestClosed.X == player.X - 1 && ChestClosed.Y == player.Y ||
+                   ChestClosed.X == player.X - 1 && ChestClosed.Y == player.Y - 1 ||
+                   ChestClosed.X == player.X && ChestClosed.Y == player.Y - 1 ||
+                   ChestClosed.X == player.X + 1 && ChestClosed.Y == player.Y - 1;
         }
     }
 }
