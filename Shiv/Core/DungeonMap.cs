@@ -18,8 +18,8 @@ namespace Shiv.Core
     public class DungeonMap : Map
     {
         //Creates an item for both a closed and open chest
-        public Item ChestOpen { get; set; }
-        public Item ChestClosed { get; set; }
+        public ItemChest ChestOpen { get; set; }
+        public ItemChest ChestClosed { get; set; }
 
         //Creates the stairs up and down
         public Stairs StairsUp { get; set; }
@@ -179,15 +179,20 @@ namespace Shiv.Core
         public bool CanPlayerOpenChest()
         {
             Player player = Game.Player;
-            return ChestClosed.X == player.X && ChestClosed.Y == player.Y ||
-                   ChestClosed.X == player.X + 1 && ChestClosed.Y == player.Y ||
-                   ChestClosed.X == player.X + 1 && ChestClosed.Y == player.Y + 1 ||
-                   ChestClosed.X == player.X && ChestClosed.Y == player.Y + 1 ||
-                   ChestClosed.X == player.X - 1 && ChestClosed.Y == player.Y + 1 ||
-                   ChestClosed.X == player.X - 1 && ChestClosed.Y == player.Y ||
-                   ChestClosed.X == player.X - 1 && ChestClosed.Y == player.Y - 1 ||
-                   ChestClosed.X == player.X && ChestClosed.Y == player.Y - 1 ||
-                   ChestClosed.X == player.X + 1 && ChestClosed.Y == player.Y - 1;
+            if (ChestClosed.IsOpened == false)
+            {
+                return ChestClosed.X == player.X && ChestClosed.Y == player.Y ||
+                       ChestClosed.X == player.X + 1 && ChestClosed.Y == player.Y ||
+                       ChestClosed.X == player.X + 1 && ChestClosed.Y == player.Y + 1 ||
+                       ChestClosed.X == player.X && ChestClosed.Y == player.Y + 1 ||
+                       ChestClosed.X == player.X - 1 && ChestClosed.Y == player.Y + 1 ||
+                       ChestClosed.X == player.X - 1 && ChestClosed.Y == player.Y ||
+                       ChestClosed.X == player.X - 1 && ChestClosed.Y == player.Y - 1 ||
+                       ChestClosed.X == player.X && ChestClosed.Y == player.Y - 1 ||
+                       ChestClosed.X == player.X + 1 && ChestClosed.Y == player.Y - 1;
+            }
+
+            return false;
         }
     }
 }

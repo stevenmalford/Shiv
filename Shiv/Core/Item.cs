@@ -1,58 +1,83 @@
 ﻿/* Name: Steven Alford
- * File: Item.cs
+ * File: RandomItemGenerator.cs
  * Date: 3/15/17
- * Desc: A generic item class that will generate a random item
- *       for the player
+ * Desc: Generates a random item when the player opens a chest
  */
-
-using RLNET;
-using RogueSharp;
-using Shiv.Interfaces;
 
 namespace Shiv.Core
 {
-    public class Item : IDrawable
+    public class Item
     {
-        //Color
-        public RLColor Color
-        { get; set; }
-        //Symbol of the object
-        public char Symbol
-        { get; set; }
-        //X coordinate
-        public int X
-        { get; set; }
-        //Y coordinate
-        public int Y
-        { get; set; }
-        //Is the chest opened?
-        public bool IsOpened
-        { get; set; }
-        
-        //Draw the item chest to the screen
-        public void Draw(RLConsole console, IMap map)
+        public enum Rarity
         {
-            //If the cell is not explored, don't draw
-            if(!map.GetCell(X, Y).IsExplored)
-            { return; }
+            Puny = 0,
+            Weak = 1,
+            Ordinary = 2,
+            Heroic = 3,
+            Legendary = 4,
+        }
 
-            //If the chest is opened, draw the first character
-            //If the chest is closed, draw the second
-            Symbol = IsOpened ? (char)9 : (char)10;
+        public enum Set
+        {
+            Head = 0,
+            Neck = 1,
+            Chest = 2,
+            Legs = 3,
+            Gloves = 4,
+            Boots = 5,
+            Weapon = 6,
+            Shield = 7,
+        }
 
-            //If the cell is in the player's view
-            if(map.IsInFov(X, Y))
-            {
-                Color = Colors.Chest;
-            }
-            //Else, color it the same as the floor
-            else
-            {
-                Color = Colors.Floor;
-            }
+        public enum Descriptor
+        {
+            Speed = 0,
+            Accuracy = 1,
+            Defense = 2,
+            Health = 3,
+            Damage = 4,
+            //Speed + Accuracy
+            Lightning = 5,
+            //Speed + Defense
+            Steadfast = 6,
+            //Speed + Health
+            Persistent = 7,
+            //Speed + Damage
+            Thief = 8,
+            //Accuracy + Defense
+            Consistency = 9,
+            //Accuracy + Health
+            Clarity = 10,
+            //Accuracy + Damage
+            Sharpshooter = 11,
+            //Defense + Health
+            Bulwark = 12,
+            //Defense + Damage
+            Berserker = 13,
+            //Health + Damage
+            Titan = 14,
+            //Speed + Accuracy + Defense + Health + Damage
+            Legend = 15,
+        }
 
-            //Set the cell to the chest's properties
-            console.Set(X, Y, Color, null, Symbol);
+        public int speed
+        { get; set; }
+        public int accuracy
+        { get; set; }
+        public int defense
+        { get; set; }
+        public int health
+        { get; set; }
+        public int damage
+        { get; set; }
+
+        public Item()
+        {
+            speed = 0;
+            accuracy = 0;
+            defense = 0;
+            health = 0;
+            damage = 0;
         }
     }
 }

@@ -218,7 +218,7 @@ namespace Shiv.Systems
             int itemRoom = map.Rooms.Count / 2;
 
             //Create a new chest that is opened
-            map.ChestOpen = new Item
+            map.ChestOpen = new ItemChest
             {
                 //Place the chest inside the item room
                 X = map.Rooms[itemRoom].Center.X,
@@ -226,7 +226,7 @@ namespace Shiv.Systems
                 IsOpened = true
             };
             //Create a new chest that is closed
-            map.ChestClosed = new Item
+            map.ChestClosed = new ItemChest
             {
                 //Place the chest inside the item room
                 X = map.Rooms[itemRoom].Center.X,

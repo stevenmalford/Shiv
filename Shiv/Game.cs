@@ -32,6 +32,13 @@ namespace Shiv
 
         //Declares a Player object
         public static Player Player { get; set; }
+        //Declares an inventory object
+        public static Inventory Inventory { get; set; }
+
+
+        public static ItemGenerator ItemGenerator { get; set; }
+        
+        
         //Declares a DungeonMap object
         public static DungeonMap DungeonMap { get; private set; }
 
@@ -71,7 +78,7 @@ namespace Shiv
         private static RLConsole inventoryConsole;
 
         //(6) Sets the armour window size in tiles (8x8 pixels)
-        private static readonly int armourWidth = 30;
+        private static readonly int armourWidth = 38;
         private static readonly int armourHeight = 30;
         private static RLConsole armourConsole;
 
@@ -119,21 +126,47 @@ namespace Shiv
             //Updates the Player's field of view on the map
             DungeonMap.UpdatePlayerFOV();
 
+            Inventory = new Inventory();
+
             //Sets background color for each subdivision of the console window
             //Prints string to label each subdivision
             mapConsole.SetBackColor(0, 0, mapWidth, mapHeight, Colors.FloorBackground);
 
-            messageConsole.SetBackColor(0, 0, messageWidth, messageHeight, Palette.PrimaryLightest);
+            messageConsole.SetBackColor(0, 0, messageWidth, messageHeight, Palette.AlternateLightest);
             messageConsole.Print(1, 1, "Messages", Colors.TextHeading);
+            messageConsole.Print(1, 2, "________", Colors.TextHeading);
 
-            statsConsole.SetBackColor(0, 0, statsWidth, statsHeight, Palette.PrimaryDarker);
+            statsConsole.SetBackColor(0, 0, statsWidth, statsHeight, Palette.AlternateLightest);
             statsConsole.Print(1, 1, "Stats", Colors.TextHeading);
+            statsConsole.Print(1, 2, "_____", Colors.TextHeading);
+            statsConsole.Print(1, 5, "Health:   "  + Player.currentHealth + "/" + Player.maxHealth, Colors.TextHeading);
+            statsConsole.Print(1, 8, "Defense:  "  + Player.currentDefense, Colors.TextHeading);
+            statsConsole.Print(1, 10, "Accuracy: " + Player.currentAccuracy, Colors.TextHeading);
+            statsConsole.Print(1, 12, "Damage:   " + Player.damage, Colors.TextHeading);
 
-            inventoryConsole.SetBackColor(0, 0, inventoryWidth, inventoryHeight, Palette.PrimaryLightest);
+            statsConsole.Print(1, 21, "Enemies:", Colors.TextHeading);
+            statsConsole.Print(1, 22, "________", Colors.TextHeading);
+
+            inventoryConsole.SetBackColor(0, 0, inventoryWidth, inventoryHeight, Palette.PrimaryDarker);
             inventoryConsole.Print(1, 1, "Inventory", Colors.TextHeading);
+            inventoryConsole.Print(1, 2, "_________", Colors.TextHeading);
+            inventoryConsole.Print(1, 5, "Slot 1: "  + Inventory.slot1, Colors.TextHeading);
+            inventoryConsole.Print(1, 7, "Slot 2: "  + Inventory.slot2, Colors.TextHeading);
+            inventoryConsole.Print(1, 9, "Slot 3: "  + Inventory.slot3, Colors.TextHeading);
+            inventoryConsole.Print(1, 11, "Slot 4: " + Inventory.slot4, Colors.TextHeading);
+            inventoryConsole.Print(1, 13, "Slot 5: " + Inventory.slot5, Colors.TextHeading);
 
-            armourConsole.SetBackColor(0, 0, armourWidth, armourHeight, Palette.Alternate);
+            armourConsole.SetBackColor(0, 0, armourWidth, armourHeight, Palette.PrimaryDarker);
             armourConsole.Print(1, 1, "Armour", Colors.TextHeading);
+            armourConsole.Print(1, 2, "______", Colors.TextHeading);
+            armourConsole.Print(1, 5, "Head:   "  + Player.Head, Colors.TextHeading);
+            armourConsole.Print(1, 7, "Neck:   "  + Player.Neck, Colors.TextHeading);
+            armourConsole.Print(1, 9, "Chest:  "  + Player.Chest, Colors.TextHeading);
+            armourConsole.Print(1, 11, "Legs:   " + Player.Legs, Colors.TextHeading);
+            armourConsole.Print(1, 13, "Gloves: " + Player.Gloves, Colors.TextHeading);
+            armourConsole.Print(1, 15, "Boots:  " + Player.Boots, Colors.TextHeading);
+            armourConsole.Print(1, 21, "Weapon: " + Player.Weapon, Colors.TextHeading);
+            armourConsole.Print(1, 23, "Shield: " + Player.Shield, Colors.TextHeading);
 
             //Instantiates a handler for RLNet's update event
             rootConsole.Update += OnRootConsoleUpdate;
@@ -150,7 +183,7 @@ namespace Shiv
             //Creates a new variable to store whether the player has moved
             //      Used to determine where to move the player's symbol if
             //      the player has moved
-            bool didPlayerMove = false;
+            bool didPlayerAct = false;
             //Creates a keypress variable to store the last key pressed by
             //      the user
             RLKeyPress keyPress = rootConsole.Keyboard.GetKeyPress();
@@ -162,25 +195,25 @@ namespace Shiv
                 if(keyPress.Key == RLKey.Up || keyPress.Key == RLKey.W)
                 {
                     //Move the player up and update didPlayerMove
-                    didPlayerMove = Commands.MovePlayer(Direction.Up);
+                    didPlayerAct = Commands.MovePlayer(Direction.Up);
                 }
                 //If the player presses down or S
                 else if (keyPress.Key == RLKey.Down || keyPress.Key == RLKey.S)
                 {
                     //Move the player down and update didPlayerMove
-                    didPlayerMove = Commands.MovePlayer(Direction.Down);
+                    didPlayerAct = Commands.MovePlayer(Direction.Down);
                 }
                 //If the player presses left or A
                 else if (keyPress.Key == RLKey.Left || keyPress.Key == RLKey.A)
                 {
                     //Move the player left and update didPlayerMove
-                    didPlayerMove = Commands.MovePlayer(Direction.Left);
+                    didPlayerAct = Commands.MovePlayer(Direction.Left);
                 }
                 //If the player presses right or D
                 else if (keyPress.Key == RLKey.Right || keyPress.Key == RLKey.D)
                 {
                     //Move the player right and update didPlayerMove
-                    didPlayerMove = Commands.MovePlayer(Direction.Right);
+                    didPlayerAct = Commands.MovePlayer(Direction.Right);
                 }
                 //If the player presses E
                 else if (keyPress.Key == RLKey.E)
@@ -192,10 +225,12 @@ namespace Shiv
                         //Create a new map for the second floor of the dungeon
                         MapGenerator mapGenerator = new MapGenerator(mapWidth, mapHeight, 40, 14, 7, ++mapLevel);
                         DungeonMap = mapGenerator.CreateMap();
+                        //Creates a new command instance to contorl the player
+                        Commands = new Commands();
                         //Updates the console title to reflect the dungeon level
                         rootConsole.Title = $"Shiv - Level 1 - Seed: {mapSeed} - Level: {mapLevel}";
                         //Renders the screen
-                        didPlayerMove = true;
+                        didPlayerAct = true;
                     }
 
                     //checks to see if the player is within 1 tile of the item
@@ -204,8 +239,13 @@ namespace Shiv
                         //If the player opens the chest, set the icon to be the
                         //      open chest and have open chest properties
                         DungeonMap.ChestClosed = DungeonMap.ChestOpen;
+
+                        ItemGenerator = new ItemGenerator();
+                        ItemGenerator.GenerateRandomItem();
+                        ItemGenerator.UpdatePlayerStats();
+                        
                         //Renders the screen
-                        didPlayerMove = true;
+                        didPlayerAct = true;
                     }
                 }
                 //If the player presses escape
@@ -217,7 +257,7 @@ namespace Shiv
             }
 
             //If the player moved
-            if(didPlayerMove)
+            if(didPlayerAct)
             {
                 //Render the game screen
                 renderRequired = true;
@@ -233,18 +273,53 @@ namespace Shiv
                 //Draw the player to the dungeon map
                 Player.Draw(mapConsole, DungeonMap);
 
+                statsConsole.Clear();
+                statsConsole.SetBackColor(0, 0, statsWidth, statsHeight, Palette.AlternateLightest);
+                statsConsole.Print(1, 1, "Stats", Colors.TextHeading);
+                statsConsole.Print(1, 2, "_____", Colors.TextHeading);
+                statsConsole.Print(1, 5, "Health:   "  + Player.currentHealth + "/" + Player.maxHealth, Colors.TextHeading);
+                statsConsole.Print(1, 8, "Defense:  "  + Player.currentDefense, Colors.TextHeading);
+                statsConsole.Print(1, 10, "Accuracy: " + Player.currentAccuracy, Colors.TextHeading);
+                statsConsole.Print(1, 12, "Damage:   " + Player.damage, Colors.TextHeading);
+
+                statsConsole.Print(1, 21, "Enemies:", Colors.TextHeading);
+                statsConsole.Print(1, 22, "________", Colors.TextHeading);
+
+                inventoryConsole.Clear();
+                inventoryConsole.SetBackColor(0, 0, inventoryWidth, inventoryHeight, Palette.PrimaryDarker);
+                inventoryConsole.Print(1, 1, "Inventory", Colors.TextHeading);
+                inventoryConsole.Print(1, 2, "_________", Colors.TextHeading);
+                inventoryConsole.Print(1, 5, "Slot 1: "  + Inventory.slot1, Colors.TextHeading);
+                inventoryConsole.Print(1, 7, "Slot 2: "  + Inventory.slot2, Colors.TextHeading);
+                inventoryConsole.Print(1, 9, "Slot 3: "  + Inventory.slot3, Colors.TextHeading);
+                inventoryConsole.Print(1, 11, "Slot 4: " + Inventory.slot4, Colors.TextHeading);
+                inventoryConsole.Print(1, 13, "Slot 5: " + Inventory.slot5, Colors.TextHeading);
+
+                armourConsole.Clear();
+                armourConsole.SetBackColor(0, 0, armourWidth, armourHeight, Palette.PrimaryDarker);
+                armourConsole.Print(1, 1, "Armour", Colors.TextHeading);
+                armourConsole.Print(1, 2, "______", Colors.TextHeading);
+                armourConsole.Print(1, 5, "Head:   "  + Player.Head, Colors.TextHeading);
+                armourConsole.Print(1, 7, "Neck:   "  + Player.Neck, Colors.TextHeading);
+                armourConsole.Print(1, 9, "Chest:  "  + Player.Chest, Colors.TextHeading);
+                armourConsole.Print(1, 11, "Legs:   " + Player.Legs, Colors.TextHeading);
+                armourConsole.Print(1, 13, "Gloves: " + Player.Gloves, Colors.TextHeading);
+                armourConsole.Print(1, 15, "Boots:  " + Player.Boots, Colors.TextHeading);
+                armourConsole.Print(1, 21, "Weapon: " + Player.Weapon, Colors.TextHeading);
+                armourConsole.Print(1, 23, "Shield: " + Player.Shield, Colors.TextHeading);
+
                 //Blits the subdivisions to the window
                 //(https://en.wikipedia.org/wiki/Bit_blit)
                 //Map
                 RLConsole.Blit(mapConsole, 0, 0, mapWidth, mapHeight, rootConsole, 0, 0);
                 //Messages
-                RLConsole.Blit(messageConsole, 0, 0, messageWidth, messageHeight, rootConsole, 0, (screenHeight - messageHeight));
+                RLConsole.Blit(messageConsole, 0, 0, messageWidth, messageHeight, rootConsole, inventoryWidth, (screenHeight - messageHeight));
                 //Stats
                 RLConsole.Blit(statsConsole, 0, 0, statsWidth, statsHeight, rootConsole, mapWidth, 0);
                 //Inventory
-                RLConsole.Blit(inventoryConsole, 0, 0, inventoryWidth, inventoryHeight, rootConsole, messageWidth, mapHeight);
+                RLConsole.Blit(inventoryConsole, 0, 0, inventoryWidth, inventoryHeight, rootConsole, 0, mapHeight);
                 //Armour
-                RLConsole.Blit(armourConsole, 0, 0, armourWidth, armourHeight, rootConsole, mapWidth, screenHeight - armourHeight);
+                RLConsole.Blit(armourConsole, 0, 0, armourWidth, armourHeight, rootConsole, screenWidth - armourWidth, screenHeight - armourHeight);
 
                 //Tells RLNet to draw the console that we specified in rootConsole
                 rootConsole.Draw();
