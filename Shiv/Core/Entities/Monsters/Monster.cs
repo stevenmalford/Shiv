@@ -1,5 +1,7 @@
 ﻿using RLNET;
 using RogueSharp;
+using Shiv.Core.Behaviors;
+using Shiv.Systems;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +29,14 @@ namespace Shiv.Core
 
             // Print the monsters name over top of the health bar
             statsConsole.Print(2, yPos, $": {Name}", Color);
+        }
+
+        public int? TurnsAlerted { get; set; }
+
+        public virtual void PerformAction(Commands commandSystem)
+        {
+            var behavior = new StandardMoveAndAttack();
+            behavior.Act(this, commandSystem);
         }
     }
 }

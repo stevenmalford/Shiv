@@ -33,12 +33,12 @@ namespace Shiv.Core
         public Player()
         {
             //Stats
-            Damage        = 3;
+            Damage        = 8;
             Accuracy      = 50;
-            Defense       = 0;
+            Defense       = 5;
             MaxHealth     = 100;
             CurrentHealth = 100;
-            Speed         = 5;
+            Speed         = 1;
             Gold          = 0;
 
             //The name of the player

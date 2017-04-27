@@ -12,7 +12,7 @@ using Shiv.Interfaces;
 
 namespace Shiv.Core
 {
-    public class Actor : IActor, IDrawable
+    public class Actor : IActor, IDrawable, IScheduleable
     {
         //IActor inheritance
         private string _name;
@@ -104,6 +104,14 @@ namespace Shiv.Core
             { return _gold; }
             set
             { _gold = value; }
+        }
+
+        public int Time
+        {
+            get
+            {
+                return Speed;
+            }
         }
 
 

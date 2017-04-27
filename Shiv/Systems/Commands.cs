@@ -2,6 +2,7 @@
 using RogueSharp;
 using RogueSharp.DiceNotation;
 using Shiv.Core;
+using Shiv.Interfaces;
 
 namespace Shiv.Systems
 {
@@ -129,6 +130,46 @@ namespace Shiv.Systems
             {
                 Game.DungeonMap.RemoveMonster((Monster) defender);
                 Game.Player.Gold += defender.Gold;
+            }
+        }
+
+        public bool IsPlayerTurn { get; set; }
+
+        public void EndPlayerturn()
+        {
+            IsPlayerTurn = false;
+        }
+
+        public void ActivateMonsters()
+        {
+            IScheduleable scheduleable = Game.SchedulingSystem.Get();
+            if(scheduleable is Player)
+            {
+                IsPlayerTurn = true;
+                Game.SchedulingSystem.Add(Game.Player);
+            }
+            else
+            {
+                Monster monster = scheduleable as Monster;
+
+                if(monster != null)
+                {
+                    monster.PerformAction(this);
+                    Game.SchedulingSystem.Add(monster);
+                }
+
+                ActivateMonsters();
+            }
+        }
+
+        public void MoveMonster(Monster monster, Cell cell)
+        {
+            if(!Game.DungeonMap.SetActorPosition(monster, cell.X, cell.Y))
+            {
+                if(Game.Player.X == cell.X && Game.Player.Y == cell.Y)
+                {
+                    Attack(monster, Game.Player);
+                }
             }
         }
     }

@@ -40,6 +40,8 @@ namespace Shiv
         //Declares a DungeonMap object
         public static DungeonMap DungeonMap { get; private set; }
 
+        public static SchedulingSystem SchedulingSystem { get; private set; }
+
         /// <summary>
         /// Console dimensions and subdivisions
         ///     - (1) Console window size
@@ -86,6 +88,7 @@ namespace Shiv
         //Main Game loop
         public static void Main()
         {
+            SchedulingSystem = new SchedulingSystem();
             //Generates a semi-random number from the current timestamp
             int seed = (int)DateTime.UtcNow.Ticks;
             mapSeed = seed;
@@ -121,6 +124,7 @@ namespace Shiv
             DungeonMap.UpdatePlayerFOV();
 
             Inventory = new Inventory();
+            
 
             //Sets background color for each subdivision of the console window
             //Prints string to label each subdivision
@@ -178,79 +182,90 @@ namespace Shiv
             //      the user
             RLKeyPress keyPress = rootConsole.Keyboard.GetKeyPress();
 
-            //If there is a keypress
-            if(keyPress != null)
+            Commands.IsPlayerTurn = true;
+            if (Commands.IsPlayerTurn)
             {
-                //If the player presses up or W
-                if(keyPress.Key == RLKey.Up || keyPress.Key == RLKey.W)
+                //If there is a keypress
+                if (keyPress != null)
                 {
-                    //Move the player up and update didPlayerMove
-                    didPlayerAct = Commands.MovePlayer(Direction.Up);
-                }
-                //If the player presses down or S
-                else if (keyPress.Key == RLKey.Down || keyPress.Key == RLKey.S)
-                {
-                    //Move the player down and update didPlayerMove
-                    didPlayerAct = Commands.MovePlayer(Direction.Down);
-                }
-                //If the player presses left or A
-                else if (keyPress.Key == RLKey.Left || keyPress.Key == RLKey.A)
-                {
-                    //Move the player left and update didPlayerMove
-                    didPlayerAct = Commands.MovePlayer(Direction.Left);
-                }
-                //If the player presses right or D
-                else if (keyPress.Key == RLKey.Right || keyPress.Key == RLKey.D)
-                {
-                    //Move the player right and update didPlayerMove
-                    didPlayerAct = Commands.MovePlayer(Direction.Right);
-                }
-                //If the player presses E
-                else if (keyPress.Key == RLKey.E)
-                {
-                    //Checks to see if the player is standing on the stairs
-                    //      to go down to the next level
-                    if(DungeonMap.CanPlayerGoDown())
+                    //If the player presses up or W
+                    if (keyPress.Key == RLKey.Up || keyPress.Key == RLKey.W)
                     {
-                        //Create a new map for the second floor of the dungeon
-                        MapGenerator mapGenerator = new MapGenerator(mapWidth, mapHeight, 40, 14, 7, ++mapLevel);
-                        DungeonMap = mapGenerator.CreateMap();
-                        //Creates a new command instance to contorl the player
-                        Commands = new Commands();
-                        //Updates the console title to reflect the dungeon level
-                        rootConsole.Title = $"Shiv - Level 1 - Seed: {mapSeed} - Level: {mapLevel}";
-                        //Renders the screen
-                        didPlayerAct = true;
+                        //Move the player up and update didPlayerMove
+                        didPlayerAct = Commands.MovePlayer(Direction.Up);
                     }
-
-                    //checks to see if the player is within 1 tile of the item
-                    if(DungeonMap.CanPlayerOpenChest())
+                    //If the player presses down or S
+                    else if (keyPress.Key == RLKey.Down || keyPress.Key == RLKey.S)
                     {
-                        //If the player opens the chest, set the icon to be the
-                        //      open chest and have open chest properties
-                        DungeonMap.ChestClosed = DungeonMap.ChestOpen;
+                        //Move the player down and update didPlayerMove
+                        didPlayerAct = Commands.MovePlayer(Direction.Down);
+                    }
+                    //If the player presses left or A
+                    else if (keyPress.Key == RLKey.Left || keyPress.Key == RLKey.A)
+                    {
+                        //Move the player left and update didPlayerMove
+                        didPlayerAct = Commands.MovePlayer(Direction.Left);
+                    }
+                    //If the player presses right or D
+                    else if (keyPress.Key == RLKey.Right || keyPress.Key == RLKey.D)
+                    {
+                        //Move the player right and update didPlayerMove
+                        didPlayerAct = Commands.MovePlayer(Direction.Right);
+                    }
+                    //If the player presses E
+                    else if (keyPress.Key == RLKey.E)
+                    {
+                        //Checks to see if the player is standing on the stairs
+                        //      to go down to the next level
+                        if (DungeonMap.CanPlayerGoDown())
+                        {
+                            //Create a new map for the second floor of the dungeon
+                            MapGenerator mapGenerator = new MapGenerator(mapWidth, mapHeight, 40, 14, 7, ++mapLevel);
+                            DungeonMap = mapGenerator.CreateMap();
+                            //Creates a new command instance to contorl the player
+                            Commands = new Commands();
+                            //Updates the console title to reflect the dungeon level
+                            rootConsole.Title = $"Shiv - Level 1 - Seed: {mapSeed} - Level: {mapLevel}";
+                            //Renders the screen
+                            didPlayerAct = true;
+                        }
 
-                        ItemGenerator = new ItemGenerator();
-                        ItemGenerator.GenerateRandomItem();
-                        ItemGenerator.UpdatePlayerStats();
-                        
-                        //Renders the screen
-                        didPlayerAct = true;
+                        //checks to see if the player is within 1 tile of the item
+                        if (DungeonMap.CanPlayerOpenChest())
+                        {
+                            //If the player opens the chest, set the icon to be the
+                            //      open chest and have open chest properties
+                            DungeonMap.ChestClosed = DungeonMap.ChestOpen;
+
+                            ItemGenerator = new ItemGenerator();
+                            ItemGenerator.GenerateRandomItem();
+                            ItemGenerator.UpdatePlayerStats();
+
+                            //Renders the screen
+                            didPlayerAct = true;
+                        }
+                    }
+                    //If the player presses escape
+                    else if (keyPress.Key == RLKey.Escape)
+                    {
+                        //Close the game
+                        rootConsole.Close();
                     }
                 }
-                //If the player presses escape
-                else if (keyPress.Key == RLKey.Escape)
-                {
-                    //Close the game
-                    rootConsole.Close();
-                }
-            }
 
-            //If the player moved
-            if(didPlayerAct)
-            {
-                //Render the game screen
-                renderRequired = true;
+                //If the player moved
+                if (didPlayerAct)
+                {
+                    //Render the game screen
+                    renderRequired = true;
+
+                    Commands.EndPlayerturn();
+                }
+                else
+                {
+                    Commands.ActivateMonsters();
+                    renderRequired = true;
+                }
             }
         }
         //Event handler for RLNet render event

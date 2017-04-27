@@ -291,9 +291,10 @@ namespace Shiv.Core
         //      field of view
         public void AddPlayer(Player player)
         {
-            Game.Player = player;
+            Game.Player = player;            
             SetIsWalkable(player.X, player.Y, false);
             UpdatePlayerFOV();
+            Game.SchedulingSystem.Add(player);
         }
 
         //Updates the player's field of view in relation to the map
@@ -318,6 +319,8 @@ namespace Shiv.Core
         {
             _monsters.Add(monster);
             SetIsWalkable(monster.X, monster.Y, false);
+
+            Game.SchedulingSystem.Add(monster);
         }
 
         public void RemoveMonster(Monster monster)
@@ -325,6 +328,8 @@ namespace Shiv.Core
             _monsters.Remove(monster);
             // After removing the monster from the map, make sure the cell is walkable again
             SetIsWalkable(monster.X, monster.Y, true);
+
+            Game.SchedulingSystem.Remove(monster);
         }
 
         public Monster GetMonsterAt(int x, int y)

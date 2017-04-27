@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Behaviors\StandardMoveAndAttack.cs" />
     <Compile Include="Core\Entities\Actor.cs" />
     <Compile Include="Core\Colors.cs" />
     <Compile Include="Core\Entities\Player\Direction.cs" />
@@ -68,12 +69,15 @@
     <Compile Include="Core\Map\Item.cs" />
     <Compile Include="Core\Map\Stairs.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="Interfaces\IBehavior.cs" />
     <Compile Include="Interfaces\IActor.cs" />
     <Compile Include="Interfaces\IDrawable.cs" />
+    <Compile Include="Interfaces\IScheduleable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Systems\Commands.cs" />
     <Compile Include="Systems\ItemGenerator.cs" />
     <Compile Include="Systems\MapGenerator.cs" />
+    <Compile Include="Systems\SchedulingSystem.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
