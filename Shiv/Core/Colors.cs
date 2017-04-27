@@ -38,5 +38,10 @@ namespace Shiv.Core
         public static RLColor Ordinary = Palette.RoyalBlue;
         public static RLColor Heroic = Palette.Clairvoyant;
         public static RLColor Legendary = Palette.TahitiGold;
+
+        public static RLColor Gold = Palette.GoldenFizz;
+        public static RLColor Health = Palette.Mandy;
+
+        public static RLColor Goblin = Palette.Atlantis;
     }
 }

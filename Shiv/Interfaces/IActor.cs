@@ -13,5 +13,13 @@ namespace Shiv.Interfaces
         string Name { get; set; }
         //Gets and sets the awareness/field of view of the actor
         int Fov { get; set; }
+
+        int Damage { get; set; }
+        int Accuracy { get; set; }
+        int Defense { get; set; }
+        int MaxHealth { get; set; }
+        int CurrentHealth { get; set; }
+        int Speed { get; set; }
+        int Gold { get; set; }
     }
 }

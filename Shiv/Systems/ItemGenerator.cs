@@ -18,6 +18,14 @@ namespace Shiv.Systems
         public int multiplier;
         public int rng;
 
+        /*private int _damage;
+        private int _accuracy;
+        private int _defense;
+        private int _blockChance;
+        private int _maxHealth;
+        private int _currentHealth;
+        private int _speed;*/
+
         public void GenerateRandomItem()
         {
             getRarity();
@@ -31,34 +39,110 @@ namespace Shiv.Systems
             Player player = Game.Player;
             if (itemType == "Head")
             {
+                player.Defense += 3 * multiplier;
+                if(player.CurrentHealth == player.MaxHealth)
+                {
+                    player.CurrentHealth += 10 * multiplier;
+                    player.MaxHealth += 10 * multiplier;
+                }
+                else
+                {
+                    player.MaxHealth += 10 * multiplier;
+                }
+
                 player.Head = randomItem;
             }
             if (itemType == "Neck")
             {
+                player.Defense += 1 * multiplier;
+                if (player.CurrentHealth == player.MaxHealth)
+                {
+                    player.CurrentHealth += 5 * multiplier;
+                    player.MaxHealth += 5 * multiplier;
+                }
+                else
+                {
+                    player.MaxHealth += 5 * multiplier;
+                }
                 player.Neck = randomItem;
             }
             if (itemType == "Chest")
             {
+                player.Defense += 4 * multiplier;
+                player.BlockChance += 4 * multiplier;
+                if (player.CurrentHealth == player.MaxHealth)
+                {
+                    player.CurrentHealth += 20 * multiplier;
+                    player.MaxHealth += 20 * multiplier;
+                }
+                else
+                {
+                    player.MaxHealth += 20 * multiplier;
+                }
                 player.Chest = randomItem;
             }
             if (itemType == "Legs")
             {
+                player.Defense += 4 * multiplier;
+                player.BlockChance += 4 * multiplier;
+                if (player.CurrentHealth == player.MaxHealth)
+                {
+                    player.CurrentHealth += 20 * multiplier;
+                    player.MaxHealth += 20 * multiplier;
+                }
+                else
+                {
+                    player.MaxHealth += 20 * multiplier;
+                }
                 player.Legs = randomItem;
             }
             if (itemType == "Gloves")
             {
+                player.Defense += 2 * multiplier;
+                if (player.CurrentHealth == player.MaxHealth)
+                {
+                    player.CurrentHealth += 10 * multiplier;
+                    player.MaxHealth += 10 * multiplier;
+                }
+                else
+                {
+                    player.MaxHealth += 10 * multiplier;
+                }
                 player.Gloves = randomItem;
             }
             if (itemType == "Boots")
             {
+                player.Defense += 2 * multiplier;
+                if (player.CurrentHealth == player.MaxHealth)
+                {
+                    player.CurrentHealth += 10 * multiplier;
+                    player.MaxHealth += 10 * multiplier;
+                }
+                else
+                {
+                    player.MaxHealth += 10 * multiplier;
+                }
                 player.Boots = randomItem;
             }
             if (itemType == "Weapon")
             {
+                player.Accuracy += 10 * multiplier;
+                player.Damage += 3 * multiplier;
                 player.Weapon = randomItem;
             }
             if (itemType == "Shield")
             {
+                player.Defense += 5 * multiplier;
+                player.BlockChance += 10 * multiplier;
+                if (player.CurrentHealth == player.MaxHealth)
+                {
+                    player.CurrentHealth += 20 * multiplier;
+                    player.MaxHealth += 20 * multiplier;
+                }
+                else
+                {
+                    player.MaxHealth += 20 * multiplier;
+                }
                 player.Shield = randomItem;
             }
             return;

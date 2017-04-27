@@ -7,6 +7,7 @@
  */
 
 using RogueSharp;
+using RogueSharp.DiceNotation;
 using Shiv.Core;
 using System;
 using System.Linq;
@@ -25,7 +26,7 @@ namespace Shiv.Systems
         private readonly int _roomMinSize;
 
         //Instantiates a DungeonMap variable to store the map
-        private readonly DungeonMap map;
+        private readonly DungeonMap room;
 
         //Map Generator function taking height and width variables,
         //      and also the room specifications (also includes 
@@ -39,7 +40,7 @@ namespace Shiv.Systems
             _roomMaxSize = roomMaxSize;
             _roomMinSize = roomMinSize;
 
-            map = new DungeonMap();
+            room = new DungeonMap();
         }
 
         //Create Map function that initializes a map, and then sets the
@@ -47,7 +48,7 @@ namespace Shiv.Systems
         public DungeonMap CreateMap()
         {
             //Initializes the map using the provided height and width
-            map.Initialize(_width, _height);
+            room.Initialize(_width, _height);
 
             //Once the room is created, if it does not intersect with another
             //      room on the map, it will be added
@@ -65,26 +66,26 @@ namespace Shiv.Systems
                 var newRoom = new Rectangle(roomX, roomY, roomWidth, roomHeight);
                 //Checks to see if the new room intersects with any of the old rooms
                 //      and sets a boolean value accordingly
-                bool newRoomIntersects = map.Rooms.Any(room => newRoom.Intersects(room));
+                bool newRoomIntersects = room.Rooms.Any(room => newRoom.Intersects(room));
 
                 //If the new room does not intersect, add the new room to the map
                 if (!newRoomIntersects)
                 {
-                    map.Rooms.Add(newRoom);
+                    room.Rooms.Add(newRoom);
                 }
             }
 
             //Creates hallways between rooms
-            for (int r = 1; r < map.Rooms.Count; r++)
+            for (int r = 1; r < room.Rooms.Count; r++)
             {
                 //Starting from the first room generated, determines
                 //      the center of the previous and current rooms
                 //      to calculate where the hallways will originate
                 //      and where they are connecting to
-                int previousRoomCenterX = map.Rooms[r - 1].Center.X;
-                int previousRoomCenterY = map.Rooms[r - 1].Center.Y;
-                int currentRoomCenterX = map.Rooms[r].Center.X;
-                int currentRoomCenterY = map.Rooms[r].Center.Y;
+                int previousRoomCenterX = room.Rooms[r - 1].Center.X;
+                int previousRoomCenterY = room.Rooms[r - 1].Center.Y;
+                int currentRoomCenterX = room.Rooms[r].Center.X;
+                int currentRoomCenterY = room.Rooms[r].Center.Y;
 
                 //Randomly chooses which L shape hallway to generate
                 //      The L is determined using the centers stored above
@@ -102,7 +103,7 @@ namespace Shiv.Systems
             }
 
             //For each rectangle in the list, create a room
-            foreach (Rectangle room in map.Rooms)
+            foreach (Rectangle room in room.Rooms)
             {
                 CreateRoom(room);
             }
@@ -115,8 +116,10 @@ namespace Shiv.Systems
             //Place the player on the map
             PlacePlayer();
 
+            PlaceMonsters();
+
             //Return generated map
-            return map;
+            return room;
         }
 
         //Creates a room using the variables stored in the list of
@@ -130,7 +133,7 @@ namespace Shiv.Systems
                 {
                     //Sets all the cells in the room to be walkable
                     //      by the player
-                    map.SetCellProperties(x, y, true, true, false);
+                    this.room.SetCellProperties(x, y, true, true, false);
                 }
             }
         }
@@ -148,11 +151,11 @@ namespace Shiv.Systems
 
             //Place the player inside the center of the first
             //      room generated
-            player.X = map.Rooms[0].Center.X;
-            player.Y = map.Rooms[0].Center.Y;
+            player.X = room.Rooms[0].Center.X;
+            player.Y = room.Rooms[0].Center.Y;
 
             //Add the new player to the map
-            map.AddPlayer(player);
+            room.AddPlayer(player);
         }
 
         //Method to create a horizontal hallway between rooms
@@ -165,7 +168,7 @@ namespace Shiv.Systems
             for (int x = Math.Min(xStart, xEnd); x <= Math.Max(xStart, xEnd); x++)
             {
                 //Set each cell along the way to be walkable
-                map.SetCellProperties(x, yPos, true, true);
+                room.SetCellProperties(x, yPos, true, true);
             }
         }
 
@@ -179,7 +182,7 @@ namespace Shiv.Systems
             for (int y = Math.Min(yStart, yEnd); y <= Math.Max(yStart, yEnd); y++)
             {
                 //Set each cell along the way to be walkable
-                map.SetCellProperties(xPos, y, true, true);
+                room.SetCellProperties(xPos, y, true, true);
             }
         }
 
@@ -189,21 +192,21 @@ namespace Shiv.Systems
         private void CreateStairs()
         {
             //Create a new stairs instance that "goes up"
-            map.StairsUp = new Stairs
+            room.StairsUp = new Stairs
             {
                 //Create the stairs to the right of the player's
                 //      starting position in the first room
-                X = map.Rooms.First().Center.X + 1,
-                Y = map.Rooms.First().Center.Y,
+                X = room.Rooms.First().Center.X + 1,
+                Y = room.Rooms.First().Center.Y,
                 IsUp = true
             };
             //Create a new stairs instance that goes down
-            map.StairsDown = new Stairs
+            room.StairsDown = new Stairs
             {
                 //Create the stairs in the last room that
                 //      was generated
-                X = map.Rooms.Last().Center.X,
-                Y = map.Rooms.Last().Center.Y,
+                X = room.Rooms.Last().Center.X,
+                Y = room.Rooms.Last().Center.Y,
                 IsUp = false
             };
         }
@@ -215,24 +218,46 @@ namespace Shiv.Systems
             //Set the room that holds the item to be the
             //      room that is half the total number of
             //      rooms on the map (middle generated)
-            int itemRoom = map.Rooms.Count / 2;
+            int itemRoom = room.Rooms.Count / 2;
 
             //Create a new chest that is opened
-            map.ChestOpen = new ItemChest
+            room.ChestOpen = new ItemChest
             {
                 //Place the chest inside the item room
-                X = map.Rooms[itemRoom].Center.X,
-                Y = map.Rooms[itemRoom].Center.Y,
+                X = room.Rooms[itemRoom].Center.X,
+                Y = room.Rooms[itemRoom].Center.Y,
                 IsOpened = true
             };
             //Create a new chest that is closed
-            map.ChestClosed = new ItemChest
+            room.ChestClosed = new ItemChest
             {
                 //Place the chest inside the item room
-                X = map.Rooms[itemRoom].Center.X,
-                Y = map.Rooms[itemRoom].Center.Y,
+                X = room.Rooms[itemRoom].Center.X,
+                Y = room.Rooms[itemRoom].Center.Y,
                 IsOpened = false
             };
+        }
+
+        private void PlaceMonsters()
+        {
+            foreach(var room in room.Rooms)
+            {
+                if (Dice.Roll("1D10") < 7)
+                {
+                    var numberOfMonsters = Dice.Roll("1D4");
+                    for (int i = 0; i < numberOfMonsters; i++)
+                    {
+                    Point randomRoomLocation = this.room.GetRandomWalkableCell(room);
+                        if (randomRoomLocation != null)
+                        {
+                            var monster = Goblin.Create(Game.mapLevel);
+                            monster.X = randomRoomLocation.X;
+                            monster.Y = randomRoomLocation.Y;
+                            this.room.AddMonster(monster);
+                        }
+                    }
+                }                
+            }
         }
     }
 }

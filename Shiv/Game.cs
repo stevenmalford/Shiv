@@ -18,8 +18,8 @@ namespace Shiv
     public class Game
     {
         //Sets the initial dungeon level and creates a seed variable
-        private static int mapLevel = 1;
-        private static int mapSeed;
+        public static int mapLevel = 1;
+        public static int mapSeed;
 
         //Creates a boolean argument to tell the render event to run
         //      if something on the screen has updated, else keep the
@@ -34,10 +34,8 @@ namespace Shiv
         public static Player Player { get; set; }
         //Declares an inventory object
         public static Inventory Inventory { get; set; }
-
-
+        //Declares an item generator object
         public static ItemGenerator ItemGenerator { get; set; }
-        
         
         //Declares a DungeonMap object
         public static DungeonMap DungeonMap { get; private set; }
@@ -63,14 +61,14 @@ namespace Shiv
         private static RLConsole mapConsole;
 
         //(3) Sets the message window size in tiles (8x8 pixels)
-        private static readonly int messageWidth = 90;
+        private static readonly int messageWidth = 88;
         private static readonly int messageHeight = 30;
         private static RLConsole messageConsole;
 
         //(4) Sets the stats window size in tiles (8x8 pixels)
         private static readonly int statsWidth = 30;
         private static readonly int statsHeight = 70;
-        private static RLConsole statsConsole;
+        public static RLConsole statsConsole;
 
         //(5) Sets the inventory window size in tiles (8x8 pixels)
         private static readonly int inventoryWidth = 30;
@@ -78,7 +76,7 @@ namespace Shiv
         private static RLConsole inventoryConsole;
 
         //(6) Sets the armour window size in tiles (8x8 pixels)
-        private static readonly int armourWidth = 38;
+        private static readonly int armourWidth = 40;
         private static readonly int armourHeight = 30;
         private static RLConsole armourConsole;
 
@@ -98,14 +96,10 @@ namespace Shiv
             string fontFile = "terminal8x8.png";
             //Title included at the top of the console window
             //      UPDATE LATER TO SHOW CURRENT DUNGEON LEVEL
-            string windowTitle = "Shiv - Level 1 - Seed: " + seed + " Level: " + mapLevel;
+            string windowTitle = "Shiv - Seed: " + seed + " Level: " + mapLevel;
 
             //Creates a new commands to control the player
             Commands = new Commands();
-
-            //Welcome Screen
-            //Console.WriteLine("Welcome to Shiv! Please enter your name: ");
-            //Player.Name = Console.ReadLine();
 
             //Creates new console window using below parameters
             //(font file name, screen width, screen height, width per tile,
@@ -139,10 +133,6 @@ namespace Shiv
             statsConsole.SetBackColor(0, 0, statsWidth, statsHeight, Palette.AlternateLightest);
             statsConsole.Print(1, 1, "Stats", Colors.TextHeading);
             statsConsole.Print(1, 2, "_____", Colors.TextHeading);
-            statsConsole.Print(1, 5, "Health:   "  + Player.currentHealth + "/" + Player.maxHealth, Colors.TextHeading);
-            statsConsole.Print(1, 8, "Defense:  "  + Player.currentDefense, Colors.TextHeading);
-            statsConsole.Print(1, 10, "Accuracy: " + Player.currentAccuracy, Colors.TextHeading);
-            statsConsole.Print(1, 12, "Damage:   " + Player.damage, Colors.TextHeading);
 
             statsConsole.Print(1, 21, "Enemies:", Colors.TextHeading);
             statsConsole.Print(1, 22, "________", Colors.TextHeading);
@@ -268,24 +258,18 @@ namespace Shiv
         {
             if (renderRequired)
             {
-                //Draw the map subdivision to the screen
-                DungeonMap.Draw(mapConsole);
-                //Draw the player to the dungeon map
-                Player.Draw(mapConsole, DungeonMap);
-
+                mapConsole.Clear();
                 statsConsole.Clear();
+                inventoryConsole.Clear();
+                armourConsole.Clear();
+
                 statsConsole.SetBackColor(0, 0, statsWidth, statsHeight, Palette.AlternateLightest);
-                statsConsole.Print(1, 1, "Stats", Colors.TextHeading);
+                statsConsole.Print(1, 1, Player.Name, Colors.TextHeading);
                 statsConsole.Print(1, 2, "_____", Colors.TextHeading);
-                statsConsole.Print(1, 5, "Health:   "  + Player.currentHealth + "/" + Player.maxHealth, Colors.TextHeading);
-                statsConsole.Print(1, 8, "Defense:  "  + Player.currentDefense, Colors.TextHeading);
-                statsConsole.Print(1, 10, "Accuracy: " + Player.currentAccuracy, Colors.TextHeading);
-                statsConsole.Print(1, 12, "Damage:   " + Player.damage, Colors.TextHeading);
 
                 statsConsole.Print(1, 21, "Enemies:", Colors.TextHeading);
                 statsConsole.Print(1, 22, "________", Colors.TextHeading);
-
-                inventoryConsole.Clear();
+                                
                 inventoryConsole.SetBackColor(0, 0, inventoryWidth, inventoryHeight, Palette.PrimaryDarker);
                 inventoryConsole.Print(1, 1, "Inventory", Colors.TextHeading);
                 inventoryConsole.Print(1, 2, "_________", Colors.TextHeading);
@@ -294,19 +278,19 @@ namespace Shiv
                 inventoryConsole.Print(1, 9, "Slot 3: "  + Inventory.slot3, Colors.TextHeading);
                 inventoryConsole.Print(1, 11, "Slot 4: " + Inventory.slot4, Colors.TextHeading);
                 inventoryConsole.Print(1, 13, "Slot 5: " + Inventory.slot5, Colors.TextHeading);
-
-                armourConsole.Clear();
+                                
                 armourConsole.SetBackColor(0, 0, armourWidth, armourHeight, Palette.PrimaryDarker);
                 armourConsole.Print(1, 1, "Armour", Colors.TextHeading);
                 armourConsole.Print(1, 2, "______", Colors.TextHeading);
-                armourConsole.Print(1, 5, "Head:   "  + Player.Head, Colors.TextHeading);
-                armourConsole.Print(1, 7, "Neck:   "  + Player.Neck, Colors.TextHeading);
-                armourConsole.Print(1, 9, "Chest:  "  + Player.Chest, Colors.TextHeading);
-                armourConsole.Print(1, 11, "Legs:   " + Player.Legs, Colors.TextHeading);
-                armourConsole.Print(1, 13, "Gloves: " + Player.Gloves, Colors.TextHeading);
-                armourConsole.Print(1, 15, "Boots:  " + Player.Boots, Colors.TextHeading);
-                armourConsole.Print(1, 21, "Weapon: " + Player.Weapon, Colors.TextHeading);
-                armourConsole.Print(1, 23, "Shield: " + Player.Shield, Colors.TextHeading);
+                Player.DrawArmour(armourConsole);
+
+
+                //Draw the map subdivision to the screen
+                DungeonMap.Draw(mapConsole, statsConsole);
+
+                //Draw the player to the dungeon map
+                Player.Draw(mapConsole, DungeonMap);
+                Player.DrawStats(statsConsole);
 
                 //Blits the subdivisions to the window
                 //(https://en.wikipedia.org/wiki/Bit_blit)
